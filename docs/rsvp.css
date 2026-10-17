@@ -1,0 +1,16 @@
+/* Touch-first RSVP additions; colours and type follow the existing invitation. */
+.field input,.field textarea,.field select{font-size:16px;line-height:1.5;min-height:46px}
+.field select{width:100%;border:1px solid var(--rule);background:transparent;color:var(--ink);padding:10px;border-radius:0;font-family:var(--mono)}
+.form-submit,.gold-button{min-height:48px}.form-submit:disabled,.gold-button:disabled{opacity:.6;cursor:wait}
+.choice{min-height:48px;align-items:center}.choice input{min-width:18px;min-height:18px;margin:0}
+.field input:focus-visible,.field textarea:focus-visible,.field select:focus-visible,.choice:focus-within{outline:2px solid #8a765f;outline-offset:4px}
+.field-help{display:block;font-size:10px;color:var(--muted);line-height:1.6;margin-top:7px}
+.form-status{font-size:12px;line-height:1.7;border-left:3px solid #8a765f;padding:12px 14px;background:#e5e2d8;margin-top:18px;overflow-wrap:anywhere}
+.form-status[data-error="true"]{border-color:#9e4638;background:#f1e3db}
+.gold-reveal{position:relative;margin:24px 0 0;padding:27px 22px;background:linear-gradient(135deg,#fff6d8,#e8d6a4 55%,#f6edcf);border:1px solid #ac8b43;color:#4d3b1d;text-align:center;box-shadow:0 9px 26px #6d51221c}
+.gold-reveal::before{content:'';position:absolute;inset:7px;border:1px solid #ac8b4350;pointer-events:none}
+.gold-reveal .eyebrow{color:#715b30}.gold-reveal h3{font:italic 38px/.98 var(--serif);margin:17px 0 12px;letter-spacing:-.035em}.gold-reveal p{font-size:11px;line-height:1.7;margin:12px 0 20px}
+.gold-button{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;background:#4d3b1d;color:#fff8e5;border:1px solid #4d3b1d;font:11px var(--mono);letter-spacing:.04em;text-decoration:none;cursor:pointer}
+.gold-button:focus-visible{outline:3px solid #8a765f;outline-offset:4px}.quiet-link{display:inline-block;color:inherit;font:11px var(--mono);text-underline-offset:4px;padding:12px 2px}.gold-reveal[hidden],.form-status[hidden]{display:none}
+.setup-note{font:11px/1.7 var(--mono);padding:13px 16px;background:#e5e2d8;border:1px solid var(--rule);color:var(--ink)}
+@media(max-width:650px){.rsvp-card{padding:29px 24px}.field{margin-bottom:23px}.gold-reveal h3{font-size:36px}.gold-button{width:100%}.music-dock{max-width:calc(100vw - 28px)}.poster,.rsvp-card{overflow-wrap:anywhere}}

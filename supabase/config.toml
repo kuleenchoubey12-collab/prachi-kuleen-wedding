@@ -1,0 +1,6 @@
+project_id = "prachi-kuleen-wedding"
+
+[functions.wedding]
+# Guests use a private invitation session, not a Supabase account.
+verify_jwt = false
+entrypoint = "./functions/wedding/index.ts"
