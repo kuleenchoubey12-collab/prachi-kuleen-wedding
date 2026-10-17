@@ -15,4 +15,5 @@ from wedding_private.rsvps r
 left join wedding_private.guests g on g.id=r.guest_id
 left join wedding_private.event_rsvps h on h.guest_id=g.id and h.event_code='haldi'
 left join wedding_private.event_rsvps s on s.guest_id=g.id and s.event_code='sangeet'
+where not r.is_test
 order by r.updated_at desc;

@@ -11,6 +11,7 @@ create table wedding_private.guests (
  haldi boolean not null default true,
  sangeet boolean not null default true,
  active boolean not null default true,
+ is_test boolean not null default false,
  unique(name,phone)
 );
 create table wedding_private.events (
@@ -33,6 +34,7 @@ create table wedding_private.rsvps (
  guest_count integer not null check(guest_count between 0 and 10),
  plus_one text not null default '',
  note text not null default '',
+ is_test boolean not null default false,
  updated_at timestamptz not null default now()
 );
 create table wedding_private.sessions (
@@ -112,9 +114,9 @@ begin
       or length(coalesce(p_payload->>'plus_one',''))>100 or length(coalesce(p_payload->>'note',''))>1000 then
     raise exception 'invalid' using errcode='22023';
    end if;
-   insert into wedding_private.rsvps(respondent_key,guest_id,name,phone,wedding,guest_count,plus_one,note)
+   insert into wedding_private.rsvps(respondent_key,guest_id,name,phone,wedding,guest_count,plus_one,note,is_test)
    values(coalesce(g.id::text,p_payload->>'identity_hash'),g.id,p_payload->>'name',p_payload->>'phone',p_payload->>'wedding',count_guests,
-    case when count_guests>1 then coalesce(p_payload->>'plus_one','') else '' end,coalesce(p_payload->>'note',''))
+    case when count_guests>1 then coalesce(p_payload->>'plus_one','') else '' end,coalesce(p_payload->>'note',''),coalesce(g.is_test,false))
    on conflict(respondent_key) do update set name=excluded.name,phone=excluded.phone,wedding=excluded.wedding,guest_count=excluded.guest_count,
     plus_one=excluded.plus_one,note=excluded.note,updated_at=now();
   end if;

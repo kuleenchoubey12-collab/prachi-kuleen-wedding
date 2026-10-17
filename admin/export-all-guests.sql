@@ -7,4 +7,4 @@ from wedding_private.guests g
 left join wedding_private.rsvps r on r.guest_id=g.id
 left join wedding_private.event_rsvps h on h.guest_id=g.id and h.event_code='haldi'
 left join wedding_private.event_rsvps s on s.guest_id=g.id and s.event_code='sangeet'
-where g.active order by g.name;
+where g.active and not g.is_test order by g.name;
