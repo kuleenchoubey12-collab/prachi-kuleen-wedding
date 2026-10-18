@@ -28,6 +28,7 @@ function syncGuests(){
    const v=data[i], name=(v[0]||'').normalize('NFKC').trim().replace(/\s+/g,' '), id=v[8]||Utilities.getUuid();ids.push([name?id:'']);
    if(!name)continue;
    const raw=(v[1]||'').trim(), invitation=(v[2]||'').trim();
+   if(!raw||!invitation||invitation==='Confirm invitation'){rows.push({id,enabled:false});continue;}
    if(!['2 days','1 day','Confirm invitation'].includes(invitation))throw Error('Check invitation type on row '+(i+1));
    if(!raw||invitation==='Confirm invitation'){rows.push({id,enabled:false});continue;}
    if(!/^\+?[\d\s().-]+$/.test(raw))throw Error('Check phone number on row '+(i+1));
@@ -45,4 +46,5 @@ function syncGuests(){
   status.getRange('A6:B6').setValues([['Last error','']]);status.autoResizeColumns(1,2);
  }catch(e){if(status)status.getRange('A6:B6').setValues([['Last error',String(e.message)]]);throw e;}finally{lock.releaseLock();}
 }
+
 
