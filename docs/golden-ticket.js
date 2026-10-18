@@ -10,7 +10,7 @@
   const titles=events.map(e=>e.title).join(' & ');document.getElementById('ticket-greeting').textContent=result.name+', you’re also invited to '+(titles||'a little more celebrating')+'. ♡';
   for(const event of events){
    const card=node('section','','event-card');card.append(node('h2',event.title));
-   const date=event.starts_at?new Intl.DateTimeFormat('en-IN',{dateStyle:'full',timeStyle:'short',timeZone:event.timezone||'Asia/Kolkata'}).format(new Date(event.starts_at))+' · India time':'Date and time to follow';card.append(node('p',date));card.append(node('p',event.venue||'Venue details to follow'));
+   const date=event.starts_at?new Intl.DateTimeFormat('en-IN',{day:'2-digit',month:'2-digit',year:'2-digit',timeZone:event.timezone||'Asia/Kolkata'}).format(new Date(event.starts_at)).replaceAll('/', ' ')+' ? '+new Intl.DateTimeFormat('en-IN',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:event.timezone||'Asia/Kolkata'}).format(new Date(event.starts_at))+' · India time':'Date and time to follow';card.append(node('p',date));card.append(node('p',event.venue||'Venue details to follow'));
    if(event.address)card.append(node('p',event.address));if(event.note)card.append(node('p',event.note));
    if(event.map_url){try{const u=new URL(event.map_url);if(u.protocol==='https:'){const link=node('a','Open directions ↗');link.href=u.href;link.target='_blank';link.rel='noopener noreferrer';card.append(link)}}catch{}}
    const fieldset=document.createElement('fieldset');fieldset.append(node('legend','Will you join us?'));const options=node('div','','options');
