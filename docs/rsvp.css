@@ -14,3 +14,5 @@
 .gold-button:focus-visible{outline:3px solid #8a765f;outline-offset:4px}.quiet-link{display:inline-block;color:inherit;font:11px var(--mono);text-underline-offset:4px;padding:12px 2px}.gold-reveal[hidden],.form-status[hidden]{display:none}
 .setup-note{font:11px/1.7 var(--mono);padding:13px 16px;background:#e5e2d8;border:1px solid var(--rule);color:var(--ink)}
 @media(max-width:650px){.rsvp-card{padding:29px 24px}.field{margin-bottom:23px}.gold-reveal h3{font-size:36px}.gold-button{width:100%}.music-dock{max-width:calc(100vw - 28px)}.poster,.rsvp-card{overflow-wrap:anywhere}}
+
+.personal-note{display:block;margin-top:12px;font-style:italic}

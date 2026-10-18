@@ -67,6 +67,7 @@ export function createHandler({ rpc, allowedOrigins, pepper }) {
         }
         const session=token();payload.token_hash=await hash(session);
         const result=await rpc('wedding_api',{p_action:action,p_payload:payload});
+        if(result.ok===false)return respond({error:result.error},403);
         return respond({...result,...(result.vip?{token:session}:{})});
       }
       const bearer=request.headers.get('authorization')||'';

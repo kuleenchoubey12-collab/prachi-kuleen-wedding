@@ -1,0 +1,1 @@
+select ''''||name as "Name entered", ''''||phone as "WhatsApp",action, attempted_at at time zone 'Asia/Kolkata' as "Attempted (India time)" from wedding_private.unmatched_attempts order by attempted_at desc;

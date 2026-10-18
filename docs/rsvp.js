@@ -12,8 +12,8 @@
    const yes=attendance()==='Yes, save me a seat';
    const result=await InviteAPI.request('submit',{name:form.elements.namedItem('name').value,phone:form.elements.namedItem('phone').value,wedding:yes?'yes':'no',guest_count:yes?Number(count.value):0,plus_one:plus.disabled?'':plus.value,note:form.elements.namedItem('plus_one_backstory').value,website:form.elements.namedItem('bot-field').value});
    status.dataset.error='false';status.textContent=yes?'Your wedding RSVP is saved. We can’t wait to celebrate with you. ♡':'Your wedding RSVP is saved. We’ll miss you — thank you for letting us know. ♡';status.hidden=false;
-   if(result.vip){reveal.hidden=false;reveal.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});reveal.focus({preventScroll:true})}else{InviteAPI.saveSession('');status.focus({preventScroll:true})}
-  }catch(error){status.dataset.error='true';status.textContent=error.message;status.hidden=false;status.focus({preventScroll:true})}
+   if(result.vip){reveal.querySelector('h3').textContent='Wait… '+result.name+'? The '+result.name+'?';reveal.querySelector('p').textContent=result.joke||'We thought we recognised someone rather special.';reveal.hidden=false;reveal.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});reveal.focus({preventScroll:true})}else{if(result.joke){const note=document.createElement('span');note.className='personal-note';note.textContent=result.joke;status.append(note);}InviteAPI.saveSession('');status.focus({preventScroll:true})}
+  }catch(error){InviteAPI.saveSession('');status.dataset.error='true';status.textContent=error.message;status.hidden=false;status.focus({preventScroll:true})}
   finally{submit.disabled=false;submit.textContent='Make it official ↗'}
  });
 })();
