@@ -11,7 +11,9 @@ export function createSyncHandler({secret,rpc}) {
    const reader=request.body?.getReader();if(!reader)throw Error();let size=0,chunks=[];
    while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>500000){await reader.cancel();throw Error();}chunks.push(value);}
    const bytes=new Uint8Array(size);let offset=0;for(const c of chunks){bytes.set(c,offset);offset+=c.length;}
-   const {rows}=JSON.parse(new TextDecoder().decode(bytes));
+   const body=JSON.parse(new TextDecoder().decode(bytes));
+   if(body.action==='reports')return reply(await rpc('wedding_reports',{}));
+   const {rows}=body;
    if(!Array.isArray(rows)||!rows.length||rows.length>2000)throw Error();
    const ids=new Set(),identities=new Set();
    for(const r of rows){

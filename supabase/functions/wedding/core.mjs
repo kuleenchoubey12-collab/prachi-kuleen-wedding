@@ -48,11 +48,18 @@ export function createHandler({ rpc, allowedOrigins, pepper }) {
       let body;try{body=JSON.parse(new TextDecoder().decode(raw));}catch{throw new RequestError('Please try submitting again.');}
       if (!body || Array.isArray(body) || typeof body !== 'object') throw new RequestError('Please try submitting again.');
       const action = body.action;
-      if (!['submit','verify','ticket','events','logout'].includes(action)) throw new RequestError('This request is not supported.');
+      if (!['submit','verify','ticket','events','logout','activity'].includes(action)) throw new RequestError('This request is not supported.');
       // Phone and session limits remain effective even if a caller spoofs IP headers.
       const ip=request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
       const ipKey=await hash(pepper+'|ip|'+ip);
       if (!(await rpc('wedding_rate_limit',{p_key:ipKey,p_limit:80,p_seconds:900}))) throw new RequestError('Too many attempts. Please try again in 15 minutes.',429);
+      if(action==='activity'){
+        const allowed=['invitation_opened','name_entered','puzzle_completed','movie_clicked'];
+        if(!allowed.includes(body.event)||! /^[a-f0-9-]{36}$/.test(body.visitor||''))throw new RequestError('Invalid activity.');
+        const name=body.name?cleanName(body.name):'';
+        await rpc('wedding_activity',{p_visitor:body.visitor,p_event:body.event,p_name:name});
+        return respond({ok:true});
+      }
       if (action === 'submit' || action === 'verify') {
         if (body.website) return respond({ok:true,vip:false}); // honeypot
         const name=cleanName(body.name),phone=phoneNumber(body.phone);
