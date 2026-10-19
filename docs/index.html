@@ -75,7 +75,7 @@ inviteSong.addEventListener('error',()=>{updateMusicControl();musicCaption.textC
 inviteSong.addEventListener('timeupdate',()=>{if(inviteSong.currentTime>=30){inviteSong.pause();inviteSong.currentTime=0;updateMusicControl()}});
 updateMusicControl();
 enter.addEventListener('click',()=>{intro.classList.add('hide');site.classList.add('show');if(inviteSong.getAttribute('src')&&!musicOptOut)inviteSong.play().catch(updateMusicControl);setTimeout(()=>{intro.style.display='none';document.getElementById('invite').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})},520)});
-const MOVIE_URL = 'https://youtu.be/JfZ1dB5_GwM'; // Public movie reward.
+const MOVIE_URL = 'https://youtu.be/KmTLn8BCZvY'; // Public movie reward.
 window.MOVIE_URL=MOVIE_URL;
 const eggButtons=[...document.querySelectorAll('.egg-button')], eggCount=document.getElementById('egg-count'), celebration=document.getElementById('celebration');
 const movieReward=document.getElementById('movie-reward'), movieLink=document.getElementById('movie-link'), moviePending=document.getElementById('movie-pending'), movieFrame=document.getElementById('movie-frame'), moviePlayer=document.getElementById('movie-player'), landscapeButton=document.getElementById('landscape-button'), orientationNote=document.getElementById('orientation-note');
@@ -104,7 +104,7 @@ document.getElementById('close-celebration').addEventListener('click',()=>{celeb
 for(const key of ['welcomeCopy','eventTime','venueName','venueAddress','venueAside'])if(typeof saved[key]==='string')document.querySelectorAll('[data-bind="'+key+'"]').forEach(el=>el.textContent=saved[key]);
 if(saved.photoData?.startsWith('data:image/'))document.querySelector('.photo-wrap>img:first-child').src=saved.photoData;
 // Signature is deployment-controlled; do not restore obsolete cached signatureData.
-if(saved.movieUrl)window.setMovieUrl(saved.movieUrl);
+// Movie link is deployment-controlled so returning guests get the latest film.
 window.setSongData('assets/invite-song.m4a');})();
 </script>
 <script src="activity.js" defer></script></body></html>
