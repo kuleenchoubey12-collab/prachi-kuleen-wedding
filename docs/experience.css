@@ -41,3 +41,5 @@
 .rsvp-card .egg-three{right:-12px}
 
 .golden #ticket-greeting{font:400 clamp(30px,6vw,52px)/1.2 var(--serif,Georgia,serif);letter-spacing:-.025em;margin:24px 0}
+
+form[name="wedding-rsvp"] .rsvp-confirmation-note{font-size:11px;line-height:1.6;color:var(--muted,#77776f);margin:0 0 20px}
