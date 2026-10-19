@@ -32,3 +32,9 @@
 .golden .primary{margin-top:24px}
 @media(max-width:650px){.details{grid-template-columns:1fr}.directions-link{justify-self:start}.poster-head [data-bind="shortDate"]{text-align:left}.golden .event-card{padding:24px 16px}.pk-reveal-dialog{padding:24px}.pk-reveal-inner{min-height:calc(100svh - 48px)}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}.pk-reveal{opacity:1;transform:none;transition:none}.pk-confetti{display:none}.pk-reveal-dialog,.site.show,.intro,.movie-reward.unlocked{animation:none!important;transition:none!important}.intro.hide{transform:none}.confetti-bit{display:none}}
+
+/* Space the discoveries along the invitation edges, away from the couple. */
+.poster .egg-one{top:5%;right:-20px}
+.event-lines .venue{position:relative;padding-right:36px}
+.poster .venue .egg-two{top:14px;right:-18px;left:auto}
+.rsvp-card .egg-three{right:-12px}
