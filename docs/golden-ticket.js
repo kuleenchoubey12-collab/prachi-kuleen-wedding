@@ -1,6 +1,6 @@
 (function(){
  'use strict';
- const locked=document.getElementById('locked'),ticket=document.getElementById('ticket'),form=document.getElementById('verify-form'),status=document.getElementById('verify-status'),list=document.getElementById('event-list'),eventForm=document.getElementById('events-form'),eventStatus=document.getElementById('events-status');
+ const locked=document.getElementById('locked'),ticket=document.getElementById('ticket'),status=document.getElementById('verify-status'),list=document.getElementById('event-list'),eventForm=document.getElementById('events-form'),eventStatus=document.getElementById('events-status');
  let events=[];
  function formatEventDate(event){
   const date=new Date(event.starts_at||'');
@@ -24,10 +24,9 @@
    for(const [value,label] of [['yes','Yes, I’ll be there ♡'],['no','Sorry, I can’t make it']]){const item=document.createElement('label'),input=document.createElement('input');input.type='radio';input.name=event.code;input.value=value;input.required=true;input.checked=event.attendance===value;item.append(input,node('span',label));options.append(item)}fieldset.append(options);card.append(fieldset);list.append(card);
   }
   if(!events.length)list.append(node('p','Your invitation is confirmed. The couple will share the event details here shortly.'));
-  document.getElementById('save-events').hidden=!events.length;document.getElementById('celebration-photo').src='assets/celebration.webp';locked.hidden=true;ticket.hidden=false;status.hidden=true;form.reset();
+  document.getElementById('save-events').hidden=!events.length;document.getElementById('celebration-photo').src='assets/celebration.webp';locked.hidden=true;ticket.hidden=false;status.hidden=true;
   window.WeddingFX?.observe(ticket);window.WeddingFX?.confetti(44);
  }
- form.addEventListener('submit',async e=>{e.preventDefault();if(!form.reportValidity())return;const button=form.querySelector('button[type="submit"]');button.disabled=true;status.hidden=true;try{const result=await InviteAPI.request('verify',{name:form.elements.name.value,phone:form.elements.phone.value,website:form.elements.website.value});if(!result.vip){InviteAPI.saveSession('');message(status,'We couldn’t open an extra invitation with those details. Check the name and number, or contact Prachi or Kuleen.',true);return}await loadTicket()}catch(error){message(status,error.message,true)}finally{button.disabled=false}});
  eventForm.addEventListener('submit',async e=>{e.preventDefault();if(!eventForm.reportValidity())return;const button=document.getElementById('save-events');button.disabled=true;eventStatus.hidden=true;try{const responses={};for(const event of events)responses[event.code]=eventForm.elements.namedItem(event.code).value;await InviteAPI.request('events',{responses},true);message(eventStatus,'Your answers are saved. Thank you — we can’t wait to celebrate. ♡')}catch(error){if(error.status===401){clearTicket();message(status,error.message,true)}else message(eventStatus,error.message,true)}finally{button.disabled=false}});
  document.getElementById('sign-out').addEventListener('click',async()=>{try{await InviteAPI.request('logout',{},true)}catch{}finally{InviteAPI.saveSession('');clearTicket();message(status,'Your private invitation is closed.')}});
  // Revalidate when a browser restores this page from its back/forward cache.
