@@ -1,6 +1,6 @@
-﻿/** @OnlyCurrentDoc */
+/** @OnlyCurrentDoc */
 const SYNC_URL='https://locszphzrfsbyqgpkafj.supabase.co/functions/v1/wedding/sync';
-function onOpen(){SpreadsheetApp.getUi().createMenu('Wedding sync').addItem('Sync now ? update website','syncNow').addItem('Enable five-minute sync','enableSync').addToUi();}
+function onOpen(){SpreadsheetApp.getUi().createMenu('Wedding sync').addItem('Sync now ? update website','syncNow').addItem('Restore original guest order','restoreGuestOrder').addItem('Enable five-minute sync','enableSync').addToUi();}
 function prepareSync(){
  const p=PropertiesService.getScriptProperties();
  if(!p.getProperty('SYNC_KEY'))p.setProperty('SYNC_KEY',Utilities.getUuid()+Utilities.getUuid());
@@ -19,13 +19,16 @@ function syncGuests(){
   const p=PropertiesService.getScriptProperties();const book=SpreadsheetApp.getActiveSpreadsheet();
   const sheet=book.getSheetByName('Guest numbers');if(!sheet)throw Error('Guest numbers tab is missing.');
   status=book.getSheetByName('Sync status')||book.insertSheet('Sync status');
-  const data=sheet.getDataRange().getDisplayValues();const expected=['Name','WhatsApp number','Invitation','Total people','Notes','Group'];
-  if(expected.some((v,i)=>data[0][i]!==v))throw Error('Keep the first six column headings unchanged.');
-  if(data[0][6]!=='Aliases'||data[0][7]!=='Personalised joke')throw Error('Columns G and H must be Aliases and Personalised joke.');
-  if(data[0][8]&&data[0][8]!=='Sync ID')throw Error('Column I must be empty or named Sync ID.');
+  const data=sheet.getDataRange().getDisplayValues();
+  const headings=['Name','WhatsApp number','Invitation','Total people','Notes','Group','Aliases','Personalised joke','Sync ID'];
+  const headerRow=data.findIndex(row=>headings.slice(0,6).every(h=>row.includes(h)));
+  if(headerRow<0)throw Error('Guest column headings are missing. Restore the header row before syncing.');
+  const positions=headings.map(h=>data[headerRow].indexOf(h));
+  if(positions.some(i=>i<0)||headings.some(h=>data[headerRow].filter(v=>v===h).length!==1))throw Error('Keep one of each guest column heading.');
+  if(headerRow!==0)throw Error('Keep the headings in row 1. Sort guest rows only.');
   const rows=[],ids=[];
   for(let i=1;i<data.length;i++){
-   const v=data[i], name=(v[0]||'').normalize('NFKC').trim().replace(/\s+/g,' '), id=v[8]||Utilities.getUuid();ids.push([name?id:'']);
+   const v=positions.map(col=>data[i][col]||''), name=(v[0]||'').normalize('NFKC').trim().replace(/\s+/g,' '), id=v[8]||Utilities.getUuid();ids.push([name?id:'']);
    if(!name)continue;
    const raw=(v[1]||'').trim(), invitation=(v[2]||'').trim();
    if(!raw||!invitation||invitation==='Confirm invitation'){rows.push({id,enabled:false});continue;}
@@ -37,7 +40,7 @@ function syncGuests(){
    rows.push({id,enabled:true,name,phone,count,vip:invitation==='2 days',group:v[5]||'',aliases:(v[6]||'').split('|').map(a=>a.trim()).filter(Boolean),joke:v[7]||''});
   }
   if(!rows.length)throw Error('Empty guest list: sync stopped to protect existing access.');
-  sheet.getRange('I1').setValue('Sync ID');sheet.getRange(2,9,ids.length,1).setValues(ids);sheet.hideColumns(9);SpreadsheetApp.flush();
+  sheet.getRange(2,positions[8]+1,ids.length,1).setValues(ids);sheet.hideColumns(positions[8]+1);SpreadsheetApp.flush();
   const key=p.getProperty('SYNC_KEY');if(!key)throw Error('Run prepareSync first.');
   const response=UrlFetchApp.fetch(SYNC_URL,{method:'post',contentType:'application/json',headers:{'x-sync-key':key},payload:JSON.stringify({rows}),muteHttpExceptions:true});
   if(response.getResponseCode()!==200)throw Error('Server rejected sync. Check setup and duplicate names/numbers.');
@@ -72,3 +75,11 @@ function refreshReports(book,key){
 }
 
 function syncNow(){syncGuests();SpreadsheetApp.getActiveSpreadsheet().toast("Guest list saved. The website can use your changes now. Check Sync status for report updates.","Wedding sync complete",10);}
+
+function restoreGuestOrder(){
+ const sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Guest numbers');
+ const headings=sheet.getRange(1,1,1,sheet.getLastColumn()).getDisplayValues()[0];
+ const serial=headings.indexOf('Serial no.');if(serial<0)throw Error('Serial no. column is missing.');
+ const count=sheet.getLastRow()-1;if(count>0)sheet.getRange(2,1,count,sheet.getLastColumn()).sort({column:serial+1,ascending:true});
+ sheet.setFrozenRows(1);SpreadsheetApp.getActiveSpreadsheet().toast('Original guest order restored.','Wedding sync');
+}
