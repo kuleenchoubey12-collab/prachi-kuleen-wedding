@@ -31,5 +31,7 @@
  document.getElementById('sign-out').addEventListener('click',async()=>{try{await InviteAPI.request('logout',{},true)}catch{}finally{InviteAPI.saveSession('');clearTicket();message(status,'Your private invitation is closed.')}});
  // Revalidate when a browser restores this page from its back/forward cache.
  window.addEventListener('pagehide',clearTicket);
- window.addEventListener('pageshow',async()=>{clearTicket();if(InviteAPI.session())try{await loadTicket()}catch(error){message(status,error.message,true)}});
+ async function openSavedInvitation(){clearTicket();if(InviteAPI.session()){locked.hidden=true;try{await loadTicket()}catch(error){clearTicket();message(status,error.message,true)}}}
+ openSavedInvitation();
+ window.addEventListener('pageshow',event=>{if(event.persisted)openSavedInvitation()});
 })();
