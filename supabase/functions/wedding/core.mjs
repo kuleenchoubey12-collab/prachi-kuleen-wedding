@@ -8,10 +8,10 @@ export function cleanName(value) {
   return name;
 }
 export function phoneNumber(value) {
-  if (typeof value !== 'string' || value.length > 32 || !/^\+?[\d\s().-]+$/.test(value.trim())) throw new RequestError('Please enter a valid WhatsApp number, including the country code.');
+  if (typeof value !== 'string' || value.length > 32 || !/^\+?[\d\s().-]+$/.test(value.trim())) throw new RequestError('Please enter a valid WhatsApp number. Indian numbers can be entered as 10 digits.');
   let digits = value.replace(/\D/g, '');
   if (!value.trim().startsWith('+') && digits.length === 10) digits = '91' + digits;
-  if (!/^[1-9]\d{7,14}$/.test(digits)) throw new RequestError('Please enter a valid WhatsApp number, including the country code.');
+  if (!/^[1-9]\d{7,14}$/.test(digits)) throw new RequestError('Please enter a valid WhatsApp number. Indian numbers can be entered as 10 digits.');
   return '+' + digits;
 }
 export async function hash(value) {
