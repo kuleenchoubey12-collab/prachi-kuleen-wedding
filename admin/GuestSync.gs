@@ -37,7 +37,12 @@ function syncGuests(){
    if(!/^\+?[\d\s().-]+$/.test(raw))throw Error('Check phone number on row '+(i+1));
    let phone=raw.replace(/\D/g,'');if(!raw.startsWith('+')&&phone.length===10)phone='91'+phone;phone='+'+phone;
    const count=Number(v[3]);if(!/^\+[1-9]\d{7,14}$/.test(phone)||!Number.isInteger(count)||count<1||count>10)throw Error('Check phone or total people on row '+(i+1));
-   rows.push({id,enabled:true,name,phone,count,vip:invitation==='2 days',group:v[5]||'',aliases:(v[6]||'').split('|').map(a=>a.trim()).filter(Boolean),joke:v[7]||''});
+   const altCol=data[0].indexOf('Alternate WhatsApp number');
+   let alternate_phone=altCol<0?'':String(data[i][altCol]||'').trim().replace(/\D/g,'');
+   if(alternate_phone.length===10)alternate_phone='91'+alternate_phone;
+   if(alternate_phone)alternate_phone='+'+alternate_phone;
+   if(alternate_phone&&!/^\+[1-9]\d{7,14}$/.test(alternate_phone))throw Error('Check alternate number on row '+(i+1));
+   rows.push({id,enabled:true,name,phone,alternate_phone,count,vip:invitation==='2 days',group:v[5]||'',aliases:(v[6]||'').split('|').map(a=>a.trim()).filter(Boolean),joke:v[7]||''});
   }
   if(!rows.length)throw Error('Empty guest list: sync stopped to protect existing access.');
   sheet.getRange(2,positions[8]+1,ids.length,1).setValues(ids);sheet.hideColumns(positions[8]+1);SpreadsheetApp.flush();
@@ -91,6 +96,7 @@ function updateRsvpChecklist(book,responses){
  const data=sheet.getDataRange().getDisplayValues(),head=data[0];
  const nameCol=head.indexOf('Name'),phoneCol=head.indexOf('WhatsApp number');
  function column(title){let i=head.indexOf(title);if(i<0){i=head.length;head.push(title);sheet.getRange(1,i+1).setValue(title)}return i+1;}
+ const alternateCol=column('Alternate WhatsApp number');sheet.getRange(2,alternateCol,Math.max(1,data.length-1),1).setNumberFormat('@');sheet.setColumnWidth(alternateCol,200);
  const checkedCol=column('RSVP received'),responseCol=column('Wedding response');
  const canonical=value=>{let n=String(value||'').replace(/\D/g,'');return n.length===10?'91'+n:n;};
  const counts=new Map();for(const row of data.slice(1)){if(row[nameCol]){const p=canonical(row[phoneCol]);if(p)counts.set(p,(counts.get(p)||0)+1)}}
