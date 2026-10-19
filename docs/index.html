@@ -46,6 +46,7 @@ eh. it’s us—you’re gonna be there anyway.</div></div><a class="directions-
 <div class="rsvp-intro"><div class="eyebrow">a very important question</div><h2>ARE YOU<br>COMING<br><em>OR WHAT?</em></h2><p>Please RSVP before we start taking it personally.</p></div>
 <div class="form-wrap"><div class="form-heading">save your spot ✕</div>
 <form name="wedding-rsvp" method="POST" action="#rsvp">
+<p class="help">We save incomplete names and attempted responses to help resolve invitation issues. Your RSVP is only confirmed after you submit with your invited phone number.</p>
 <p hidden><label>Don’t fill this out: <input name="bot-field"></label></p>
 <div class="field"><label for="name">Your name</label><input id="name" name="name" maxlength="100" type="text" placeholder="The name we know you by" autocomplete="name" required></div>
 <div class="field"><label for="phone">Your WhatsApp number</label><input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="98765 43210" maxlength="32" required><small class="field-help">For Indian numbers, 10 digits are enough. Your number stays with the hosts.</small></div>
@@ -108,4 +109,4 @@ if(saved.photoData?.startsWith('data:image/'))document.querySelector('.photo-wra
 // Movie link is deployment-controlled so returning guests get the latest film.
 window.setSongData('assets/invite-song.m4a');})();
 </script>
-<script src="activity.js" defer></script></body></html>
+<script src="activity.js?v=20261019-attempts" defer></script></body></html>

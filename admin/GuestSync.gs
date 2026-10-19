@@ -59,8 +59,10 @@ function refreshReports(book,key){
  const response=UrlFetchApp.fetch(SYNC_URL,{method:'post',contentType:'application/json',headers:{'x-sync-key':key},payload:JSON.stringify({action:'reports'}),muteHttpExceptions:true});
  if(response.getResponseCode()!==200)throw Error('Could not refresh reports.');
  const data=JSON.parse(response.getContentText());
+ updateRsvpChecklist(book,data.rsvps);
  const specs=[['RSVPs',['Name','WhatsApp','Wedding','Guests attending','Plus one','Notes','Haldi','Sangeet','Updated (India time)'],data.rsvps.map(r=>[r.name,r.phone,r.wedding,r.guest_count,r.plus_one,r.note,r.haldi,r.sangeet,r.updated])],
- ['Unmatched attempts',['Name entered','WhatsApp','Type','Time (India time)'],data.attempts.map(r=>[r.name,r.phone,r.action,r.attempted]).concat(data.activity.filter(r=>r.event==='name_entered').map(r=>[r.name,'Not supplied at name entry','Incomplete / unverified name entry',r.occurred]))],
+ ['Unmatched attempts',['Name entered','WhatsApp','Type','Time (India time)'],data.attempts.map(r=>[r.name,r.phone,r.action,r.attempted])],
+ ['Incomplete attempts',['Name entered (unverified)','Type','Time (India time)'],data.activity.filter(r=>r.event==='name_entered').map(r=>[r.name,'Name only; not an RSVP',r.occurred])],
  ['Activity',['Visitor session','Name (self-entered, unverified)','Activity','Time (India time)'],data.activity.map(r=>[r.visitor,r.name,r.event,r.occurred])]];
  for(const [title,headers,rows] of specs){
   const sheet=book.getSheetByName(title)||book.insertSheet(title);
@@ -82,4 +84,29 @@ function restoreGuestOrder(){
  const serial=headings.indexOf('Serial no.');if(serial<0)throw Error('Serial no. column is missing.');
  const count=sheet.getLastRow()-1;if(count>0)sheet.getRange(2,1,count,sheet.getLastColumn()).sort({column:serial+1,ascending:true});
  sheet.setFrozenRows(1);SpreadsheetApp.getActiveSpreadsheet().toast('Original guest order restored.','Wedding sync');
+}
+
+function updateRsvpChecklist(book,responses){
+ const sheet=book.getSheetByName('Guest numbers');
+ const data=sheet.getDataRange().getDisplayValues(),head=data[0];
+ const nameCol=head.indexOf('Name'),phoneCol=head.indexOf('WhatsApp number');
+ function column(title){let i=head.indexOf(title);if(i<0){i=head.length;head.push(title);sheet.getRange(1,i+1).setValue(title)}return i+1;}
+ const checkedCol=column('RSVP received'),responseCol=column('Wedding response');
+ const canonical=value=>{let n=String(value||'').replace(/\D/g,'');return n.length===10?'91'+n:n;};
+ const counts=new Map();for(const row of data.slice(1)){if(row[nameCol]){const p=canonical(row[phoneCol]);if(p)counts.set(p,(counts.get(p)||0)+1)}}
+ const byPhone=new Map();for(const r of responses){const p=canonical(r.phone);if(!byPhone.has(p))byPhone.set(p,r)}
+ let total=0,replied=0,yes=0,no=0,people=0;
+ const checks=[],answers=[];
+ for(const row of data.slice(1)){
+  if(!row[nameCol]){checks.push(['']);answers.push(['']);continue}total++;
+  const p=canonical(row[phoneCol]),r=counts.get(p)===1?byPhone.get(p):null;
+  checks.push([Boolean(r)]);answers.push([r?(r.wedding==='yes'?'Attending':'Not attending'):'Awaiting reply']);
+  if(r){replied++;if(r.wedding==='yes'){yes++;people+=Number(r.guest_count)||0}else no++}
+ }
+ if(checks.length){sheet.getRange(2,checkedCol,checks.length,1).insertCheckboxes().setValues(checks);sheet.getRange(2,responseCol,answers.length,1).setValues(answers);}
+ sheet.getRange(1,checkedCol).setFontWeight('bold');sheet.getRange(1,responseCol).setFontWeight('bold');sheet.setColumnWidth(checkedCol,130);sheet.setColumnWidth(responseCol,160);
+ const summary=book.getSheetByName('RSVP summary')||book.insertSheet('RSVP summary');
+ summary.getRange('A1:B8').setValues([['RSVP checklist','Count'],['Guests listed',total],['Replies received',replied],['Awaiting reply',total-replied],['Attending (guest entries)',yes],['Declined (guest entries)',no],['People attending (including plus ones)',people],['Last refreshed',new Date()]]);
+ summary.getRange('B8').setNumberFormat('dd MM yy HH:mm:ss');summary.getRange('A1:B1').setFontWeight('bold').setBackground('#e9dfc7');summary.autoResizeColumns(1,2);summary.setFrozenRows(1);
+ const filter=sheet.getFilter();if(filter){filter.remove();sheet.getRange(1,1,Math.max(2,data.length),sheet.getLastColumn()).createFilter();}
 }
