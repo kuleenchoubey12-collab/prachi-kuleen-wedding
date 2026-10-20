@@ -78,11 +78,20 @@ function refreshReports(book,key){
   sheet.setFrozenRows(1);sheet.getRange(1,1,1,headers.length).setFontWeight('bold').setBackground('#e9dfc7');
   sheet.setColumnWidths(1,headers.length,170);sheet.getRange(1,1,values.length,headers.length).setWrap(true);
   if(title==='RSVPs'){
-   const totalRow=values.length+2;
-   if(sheet.getMaxRows()<totalRow)sheet.insertRowsAfter(sheet.getMaxRows(),totalRow-sheet.getMaxRows());
-   const total=rows.reduce((sum,r)=>sum+(r[2]==='yes'?(Number(r[3])||0):0),0);
-   sheet.getRange(totalRow,1,1,4).setValues([['Total people attending (including plus-ones)','','',total]]).setFontWeight('bold').setBackground('#e9dfc7');
-   sheet.getRange(totalRow,1).setWrap(true);sheet.getRange(totalRow,4).setNumberFormat('0');
+   const totalRow=values.length+2,lastDataRow=Math.max(2,values.length);
+   if(sheet.getMaxRows()<totalRow+2)sheet.insertRowsAfter(sheet.getMaxRows(),totalRow+2-sheet.getMaxRows());
+   sheet.getRange(totalRow,1,3,4).setValues([
+    ['Wedding: total people attending (including plus-ones)','','',''],
+    ['Sangeet: total people attending (including plus-ones)','','',''],
+    ['Haldi: total people attending (including plus-ones)','','','']
+   ]).setFontWeight('bold').setBackground('#e9dfc7');
+   sheet.getRange(totalRow,4,3,1).setFormulas([
+    ['=SUMIF(C2:C'+lastDataRow+',"yes",D2:D'+lastDataRow+')'],
+    ['=SUMIF(H2:H'+lastDataRow+',"yes",D2:D'+lastDataRow+')'],
+    ['=SUMIF(G2:G'+lastDataRow+',"yes",D2:D'+lastDataRow+')']
+   ]).setNumberFormat('0');
+   sheet.getRange(totalRow,1,3,1).setWrap(true);
+   sheet.getRange(totalRow+1,1,2,1).setNote('Uses the Guests attending count for each RSVP whose event answer is yes. Separate event party sizes are not collected.');
   }
   sheet.getRange('A1').setNote('Automatically refreshed every five minutes. Latest 10,000 records per report. Edit invitations in Guest numbers, not these reports.');
  }
