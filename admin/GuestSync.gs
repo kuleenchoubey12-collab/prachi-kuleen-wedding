@@ -77,6 +77,13 @@ function refreshReports(book,key){
   if(previous>values.length)sheet.getRange(values.length+1,1,previous-values.length,headers.length).clearContent();
   sheet.setFrozenRows(1);sheet.getRange(1,1,1,headers.length).setFontWeight('bold').setBackground('#e9dfc7');
   sheet.setColumnWidths(1,headers.length,170);sheet.getRange(1,1,values.length,headers.length).setWrap(true);
+  if(title==='RSVPs'){
+   const totalRow=values.length+2;
+   if(sheet.getMaxRows()<totalRow)sheet.insertRowsAfter(sheet.getMaxRows(),totalRow-sheet.getMaxRows());
+   const total=rows.reduce((sum,r)=>sum+(r[2]==='yes'?(Number(r[3])||0):0),0);
+   sheet.getRange(totalRow,1,1,4).setValues([['Total people attending (including plus-ones)','','',total]]).setFontWeight('bold').setBackground('#e9dfc7');
+   sheet.getRange(totalRow,1).setWrap(true);sheet.getRange(totalRow,4).setNumberFormat('0');
+  }
   sheet.getRange('A1').setNote('Automatically refreshed every five minutes. Latest 10,000 records per report. Edit invitations in Guest numbers, not these reports.');
  }
 }
